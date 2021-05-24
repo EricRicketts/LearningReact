@@ -1,13 +1,17 @@
 import logo from './logo.svg';
 import './App.css';
 
-function getTitle(title) {
-  return title;
+const heading = {
+  greeting: 'Hello',
+  title: 'React'
+}
+function getHeading(heading) {
+  return `${heading.greeting} ${heading.title}`;
 }
 function App() {
   return (
     <div>
-      <h1>Hello {getTitle('React')}</h1>
+      <h1>{getHeading(heading)}</h1>
       <label htmlFor="search">Search: </label>
       <input type="text" id="search"/>
     </div>
