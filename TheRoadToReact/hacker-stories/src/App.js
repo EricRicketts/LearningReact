@@ -19,20 +19,18 @@ const list = [
     objectID: 1
   }
 ];
-function List() {
-  return list.map((item, index) => {
-    return (
-      <ul key={item.objectID}><span><a href={item.url}>{item.title}</a></span>
-        <ul key="0">Author(s): {item.title}</ul>
-        <ul key="1">Number of Comments: {item.number_of_comments}</ul>
-        <ul key="2">Points: {item.points}</ul>
-      </ul>
-    )
-  })
-}
-
-function App() {
-  return (
+const List = () =>
+  list.map(item => (
+    <div key={item.objectID}>
+      <span>
+        <a href={item.url}>{item.title}</a>
+      </span>
+      <span>{item.author}</span>
+      <span>{item.number_of_comments}</span>
+      <span>{item.points}</span>
+    </div>
+  ));
+const App = () => (
     <div>
       <h1>My Hacker Stories</h1>
 
@@ -44,6 +42,6 @@ function App() {
       <List />
     </div>
   );
-}
+
 
 export default App;
