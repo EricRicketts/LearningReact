@@ -61,7 +61,7 @@ const App = () => {
     <div>
       <h1>My Hacker Stories</h1>
 
-      <Search onSearch={handleSearch} /> // invoke the callback Handler parent, passing to child as a prop
+      <Search onSearch={handleSearch} />  {/* invoke the handler in the parent pass to the child as a prop */}
 
       <hr/>
 
