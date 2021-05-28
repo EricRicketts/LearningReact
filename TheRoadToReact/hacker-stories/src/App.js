@@ -13,6 +13,26 @@ const List = props =>
       <span>{item.points}</span>
     </div>
   ));
+const Search = props => {
+  const [searchTerm, setSearchTerm] = React.useState('');
+
+  const handleChange = event => {
+    setSearchTerm(event.target.value);
+    props.onSearch(event); // invoke the callback Handler in the child component via use of props.
+  }
+
+  return (
+    <div>
+      <label htmlFor="search">Search: </label>
+      <input type="text" id="search" onChange={handleChange} />
+
+      <p>
+        Searching for <strong>{searchTerm}</strong>.
+      </p>
+
+    </div>
+  );
+}
 const App = () => {
   const stories = [
     {
@@ -33,21 +53,15 @@ const App = () => {
     }
   ];
 
-  const [searchTerm, setSearchTerm] = React.useState('');
-
-  const handleChange = event => {
-    setSearchTerm(event.target.value);
+  const handleSearch = event => { // define and execute the callback Handler in the parent component.
+    console.log(event.target.value)
   }
+
   return (
     <div>
       <h1>My Hacker Stories</h1>
 
-      <label htmlFor="search">Search: </label>
-      <input type="text" id="search" onChange={handleChange} />
-
-      <p>
-        Searching for <strong>{searchTerm}</strong>.
-      </p>
+      <Search onSearch={handleSearch} /> // invoke the callback Handler parent, passing to child as a prop
 
       <hr/>
 
