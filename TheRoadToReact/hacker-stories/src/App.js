@@ -17,7 +17,7 @@ const Search = props => {
   return (
     <div>
       <label htmlFor="search">Search: </label>
-      <input type="text" id="search" onChange={props.onSearch} />
+      <input type="text" id="search" value={props.search} onChange={props.onSearch} />
     </div>
   );
 }
@@ -55,8 +55,15 @@ const App = () => {
     object?  From the onChange attribute in the input element defined within the Search component.  So once onChange
     triggers an event object, props.onSearch is called which calls the handleSearch function, new the searchTerm
     variable is updated at the App level.
+
+    The problem we had with the prior code is that if we changed the initial state the new initial value did not show
+    up as the value for the input element.  Furthermore, the filter would run and the updated state would be reflected
+    in the UI.  So for instance with 'React' as the new default value, only the React data would be shown but the
+    string 'React' would not be in the input field of the input element.  To fix this we add another prop to the
+    Search component which captures the searchTerm variable and through props passes the searchTerm variable to
+    the value attribute of the input element.
   */
-  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = React.useState('React');
 
   const handleSearch = event => {
     setSearchTerm(event.target.value)
@@ -69,7 +76,7 @@ const App = () => {
     <div>
       <h1>My Hacker Stories</h1>
 
-      <Search onSearch={handleSearch} />
+      <Search search={searchTerm} onSearch={handleSearch} />
 
       <hr/>
 
