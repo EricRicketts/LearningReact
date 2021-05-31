@@ -14,22 +14,10 @@ const List = props =>
     </div>
   ));
 const Search = props => {
-  const [searchTerm, setSearchTerm] = React.useState('');
-
-  const handleChange = event => {
-    setSearchTerm(event.target.value);
-    props.onSearch(event); // invoke the callback Handler in the child component via use of props.
-  }
-
   return (
     <div>
       <label htmlFor="search">Search: </label>
-      <input type="text" id="search" onChange={handleChange} />
-
-      <p>
-        Searching for <strong>{searchTerm}</strong>.
-      </p>
-
+      <input type="text" id="search" onChange={props.onSearch} />
     </div>
   );
 }
@@ -52,20 +40,40 @@ const App = () => {
       objectID: 1
     }
   ];
+  /*
+    It is very important to understand how state is being managed so far in this application.  We initialize the
+    searchTerm and the updating function, setSearchTerm, by use of React.useState().  We defined a function,
+    handleSearch at the App level which will actually update the searchTerm.  This is critical to understand, since
+    searchTerm is at the App level, it can be passed to any component by way of props.
 
-  const handleSearch = event => { // define and execute the callback Handler in the parent component.
-    console.log(event.target.value)
+    This is the case with the filtering function searchedStories, it takes the searchTerm and uses that as the basis
+    for searching among the stories.
+
+    So how does the Search component actually set the updated value for searchTerm?  Note the Search component is
+    instantiated with a "onSearch" attribute, in the definition of the Search component, "onSearch" becomes a prop
+    which is passed the "handleSearch" function.  So where does the "handleSearch" function get access to the event
+    object?  From the onChange attribute in the input element defined within the Search component.  So once onChange
+    triggers an event object, props.onSearch is called which calls the handleSearch function, new the searchTerm
+    variable is updated at the App level.
+  */
+  const [searchTerm, setSearchTerm] = React.useState('');
+
+  const handleSearch = event => {
+    setSearchTerm(event.target.value)
   }
+  const searchedStories = stories.filter(story =>
+    story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
       <h1>My Hacker Stories</h1>
 
-      <Search onSearch={handleSearch} />  {/* invoke the handler in the parent pass to the child as a prop */}
+      <Search onSearch={handleSearch} />
 
       <hr/>
 
-      <List list={stories} />
+      <List list={searchedStories} />
     </div>
   );
 }
