@@ -13,14 +13,17 @@ const List = props =>
       <span>{item.points}</span>
     </div>
   ));
-const Search = props => {
-  return (
+const Search = ({ search, onSearch }) => (
     <div>
       <label htmlFor="search">Search: </label>
-      <input type="text" id="search" value={props.search} onChange={props.onSearch} />
+      <input
+        type="text"
+        id="search"
+        value={search}
+        onChange={onSearch}
+      />
     </div>
   );
-}
 const App = () => {
   const stories = [
     {
