@@ -15,7 +15,7 @@ const Item = ({ item }) => (
   </div>
 );
 const Search = ({ search, onSearch }) => (
-    <div>
+    <>
       <label htmlFor="search">Search: </label>
       <input
         type="text"
@@ -23,7 +23,7 @@ const Search = ({ search, onSearch }) => (
         value={search}
         onChange={onSearch}
       />
-    </div>
+    </>
   );
 const useSemiPersistentState = (key, initialState) => {
   const [value, setValue] = React.useState(
