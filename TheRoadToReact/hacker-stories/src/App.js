@@ -14,14 +14,15 @@ const Item = ({ item }) => (
     <span>{item.points}</span>
   </div>
 );
-const Search = ({ search, onSearch }) => (
+const InputWithLabel = ({ id, value, type = 'text', onInputChange, children }) => (
     <>
-      <label htmlFor="search">Search: </label>
+      <label htmlFor={id}>{children}</label>
+      &nbsp;
       <input
-        type="text"
-        id="search"
-        value={search}
-        onChange={onSearch}
+        id={id}
+        type={type}
+        value={value}
+        onChange={onInputChange}
       />
     </>
   );
@@ -65,8 +66,13 @@ const App = () => {
     <div>
       <h1>My Hacker Stories</h1>
 
-      <Search search={searchTerm} onSearch={handleSearch} />
-
+      <InputWithLabel
+        id="search"
+        value={searchTerm}
+        onInputChange={handleSearch}
+      >
+        <strong>Search:</strong>
+      </InputWithLabel>
       <hr/>
 
       <List list={searchedStories} />
