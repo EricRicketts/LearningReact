@@ -14,18 +14,28 @@ const Item = ({ item }) => (
     <span>{item.points}</span>
   </div>
 );
-const InputWithLabel = ({ id, value, type = 'text', onInputChange, children }) => (
+const InputWithLabel = ({ id, value, type = 'text', onInputChange, isFocused, children }) => {
+  const inputRef = React.useRef();
+  React.useEffect(() => {
+    if (isFocused && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isFocused]);
+  return (
     <>
       <label htmlFor={id}>{children}</label>
       &nbsp;
+      {}
       <input
         id={id}
         type={type}
         value={value}
+        autoFocus={isFocused}
         onChange={onInputChange}
       />
     </>
   );
+  };
 const useSemiPersistentState = (key, initialState) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
