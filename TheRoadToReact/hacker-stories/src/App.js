@@ -2,9 +2,15 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-const List = ({ list }) => list.map(item => <Item key={item.objectID} item={item} />);
+const List = ({ list, onRemoveItem }) => list.map(item => (
+  <Item
+    key={item.objectID}
+    item={item}
+    onRemoveItem={onRemoveItem}
+  />
+));
 
-const Item = ({ item }) => (
+const Item = ({ item, onRemoveItem }) => (
   <div>
     <span>
       <a href={item.url}>{item.title}</a>
@@ -12,6 +18,9 @@ const Item = ({ item }) => (
     <span>{item.author}</span>
     <span>{item.number_of_comments}</span>
     <span>{item.points}</span>
+    <span>
+      <button type="button" onClick={() => onRemoveItem(item)}>Dismiss</button>
+    </span>
   </div>
 );
 const InputWithLabel = ({ id, value, type = 'text', onInputChange, isFocused, children }) => {
@@ -46,7 +55,7 @@ const useSemiPersistentState = (key, initialState) => {
   return [value, setValue];
 }
 const App = () => {
-  const stories = [
+  const initialStories = [
     {
       title: 'React',
       url: 'https://reactjs.org/',
@@ -65,13 +74,19 @@ const App = () => {
     }
   ];
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', '');
+  const [stories, setStories] = React.useState(initialStories);
+
   const handleSearch = event => {
     setSearchTerm(event.target.value);
   }
-  const searchedStories = stories.filter(story =>
+  const searchedStories = initialStories.filter(story =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleRemoveStory = item => {
+    const newStories = stories.filter(story => item.objectID !== story.objectID);
+    setStories(newStories);
+  }
   return (
     <div>
       <h1>My Hacker Stories</h1>
@@ -85,7 +100,7 @@ const App = () => {
       </InputWithLabel>
       <hr/>
 
-      <List list={searchedStories} />
+      <List list={searchedStories} onRemoveItem={handleRemoveStory}/>
     </div>
   );
 }
