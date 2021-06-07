@@ -1,0 +1,333 @@
+I need to take time at this point to explain what is going with the application because I am starting to lose
+understanding.
+
+Let's start from the top and work down.  I am not going to use line numbers because the code changes too often.  The
+best approach is to start with the App component and work my way down through the component tree.
+
+************************************************************************************************************************
+We will start with the <InputWithLabel> component, this is its instantiation within the App component:
+
+<InputWithLabel
+id="search"
+value={searchTerm}
+onInputChange={handleSearch}
+>
+<strong>Search:</strong>
+</InputWithLabel>
+
+Let us now look at its function definition:
+
+const InputWithLabel = ({ id, value, type = 'text', onInputChange, isFocused, children }) => {
+  const inputRef = React.useRef();
+  React.useEffect(() => {
+    if (isFocused && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isFocused]);
+  return (
+    <>
+      <label htmlFor={id}>{children}</label>
+      &nbsp;
+      {}
+      <input
+        id={id}
+        type={type}
+        value={value}
+        autoFocus={isFocused}
+        onChange={onInputChange}
+      />
+    </>
+  );
+  };
+
+I do not want to explain too much about Components and Props only enough to understand my code.  Conceptually, React
+components are like Javascript functions.  The accept arbitrary inputs, called "props", and return React elements
+describing what should appear on the screen.
+
+This is what we have with the <InputWithLabel> component.  In this case the props for <InputWithLabel> are: id, value,
+type, onInputChange, isFocused, and children.  Note with the {} syntax for the props the props are being object
+destructured.  Note the props are essentially what would be referred to in the DOM as element attributes.  Normally,
+we would say the id is "props.id" but since we destructured in the component signature, we are assigning the prop values
+to the object keys given in the component signature => { id, value, type='text', onInputChange, isFocused, children }.
+
+Let us start with the body of the component signature for <InputWithLabel>.  So, what is the following code doing =>
+
+const inputRef = React.useRef();  In React useRef(initialValue) returns a mutable reference object, which is just a
+plain old Javascript object, whose [current] property is initialized to the passed in argument, ie, initialValue.  The
+returned object will persist for the lifetime of the component.  In this case the [current] property is set to
+undefined.
+
+There are two reasons for using refs in React:
+1.  Accessing underlying DOM nodes or React elements.
+2.  Creating mutable instance like variables for functional components.
+
+Well, currently, inputRef will always be undefined.  For functional components, in order to access the DOM element
+itself we actually have to refer to a DOM element inside the functional component:
+
+function CustomTextInput(props) {
+  // textInput must be declared here so the ref can refer to it
+  const textInput = useRef(null); // here it returns { current: null }.
+
+  function handleClick() {
+    textInput.current.focus();
+  }
+
+  return (
+    <div>
+      <input
+        type="text"
+        ref={textInput} /> // however, now the textInput const is the value for the ref attribute in the DOM input
+      <input               // input element.  Now this input element is associated with const textInput, so when the
+        type="button"      // user clicks in the input field it calls the handleClick handler and textInput.current
+        value="Focus the text input"  // returns the input element and the focus method can now be called on the
+        onClick={handleClick}         // input element, so textInput.current.focus() is the same as
+      />                              // <CurrentHTMLInputElement>.focus();
+    </div>
+  );
+}
+
+In our case, ref is not used as of now, so the input element is never put into autoFocus, as in the component
+instantiation there is no ref attribute.  We are parameterizing the autoFocus attribute instead of just calling it
+because if there is more than one instance of an <InputWithLabel> only the last instance will be focused, that is
+<InputWithLabel ... autoFocus ... /> and <InputWithLabel ... autoFocus ... /> only this last instance will be focused.
+
+In the case of <InputWithLabel> the isFocused property is never set in the instantiation so it remains undefined
+meaning the useEffect() method never sets the focus() on the input element.  as isFocused is false and InputRef.current
+is always undefined as of now.
+
+Note the <> and </> is a short hand for a React fragment, meaning it just returns the elements as is with out the
+need for a parent element.  This short hand does not support keys and attributes in their respective tags, however,
+<React.Fragment> and </React.Fragment> do support keys and attributes.
+
+If we look at the instance of <InputWithLabel> we see how the props are passed down to the component signature:
+
+<InputWithLabel
+id="search"
+value={searchTerm}
+onInputChange={handleSearch}
+>
+<strong>Search:</strong>
+</InputWithLabel>
+
+So the props are id, value, onInputChange and children in this case.  In React, children are all the child nodes
+of the component, in this case the child node is <strong>Search:</strong> and we refer to this child in the component
+signature.  Child nodes can also be just text nodes.
+
+In the instantiation of the <InputWithLabel> component we are using something called component composition.  So it
+is likened an normal HTML tag in the following manner: <opening tag attributes>content</closing tag>.
+
+Note in the component signature we have a React attribute onChange which is the same as the DOM element attribute
+onchange.  onchange is executed when the user commits to a value in the input field, such as clicking outside the
+input field or using tab or return to move out of the input field.
+
+Note the prop onInputChange needs a value and this value is the handleSearch function defined at the App component
+level.  This sets the searchTerm to event.target.value which is the characters contained in the input field.
+
+  const handleSearch = event => {
+    setSearchTerm(event.target.value);
+  }
+
+We pass this input value to the state logic as follows:
+
+// useSemiPersistentState is defined outside of the App component.
+const useSemiPersistentState = (key, initialState) => {
+  const [value, setValue] = React.useState(
+    localStorage.getItem(key) || initialState
+  );
+  React.useEffect(() => {
+    localStorage.setItem(key, value);
+  }, [key, value]);
+  return [value, setValue];
+}
+
+// this is defined within the App component.  The initialState value sets the initial const value, through
+// React.useState and it returns the value update function which is captured in the setSearchTerm const.
+
+const [searchTerm, setSearchTerm] = useSemiPersistentState('search', '');
+
+In the function useSemiPersistentState, the useEffect function will run every time the React renders.  In this
+case it will compare the key and the value before and after the render, if they are the same, then there is no call
+to the effect if either one or both are different before and after the render than the effect will run.  What this does
+is to update the value in localStorage if the key and/or value change.
+
+************************************************************************************************************************
+Now we move onto the <List> component.
+
+Here is the code for the <List> component outside of the App component:
+
+const List = ({ list, onRemoveItem }) => list.map(item => (
+  <Item
+    key={item.objectID}
+    item={item}
+    onRemoveItem={onRemoveItem}
+  />
+));
+
+const Item = ({ item, onRemoveItem }) => (
+  <div>
+    <span>
+      <a href={item.url}>{item.title}</a>
+    </span>
+    <span>{item.author}</span>
+    <span>{item.number_of_comments}</span>
+    <span>{item.points}</span>
+    <span>
+      <button type="button" onClick={() => onRemoveItem(item)}>Dismiss</button>
+    </span>
+  </div>
+);
+
+const storiesReducer = (state, action) => {
+  switch (action.type) {
+    case 'STORIES_FETCH_INIT':
+      return {
+        ...state,
+        isLoading: true,
+        isError: false,
+      };
+    case 'STORIES_FETCH_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        data: action.payload
+      }
+    case 'STORIES_FETCH_FAILURE':
+      return {
+        ...state,
+        isLoading: false,
+        isError: true
+      }
+    case 'REMOVE_STORY':
+      return {
+        ...state,
+        data: state.data.filter(story => action.payload.objectID !== story.objectID)
+      }
+    default:
+      throw new Error();
+  }
+}
+
+Here is the code in the App component other than the <List> component instantiation:
+
+  const getAsyncStories = () =>
+    new Promise(resolve =>
+      setTimeout(() =>
+        resolve({ data: { stories: initialStories } }),
+        2000
+      )
+    );
+
+  const [stories, dispatchStories] = React.useReducer(
+    storiesReducer,
+    { data: [], isLoading: false, isError: false }
+  );
+
+  React.useEffect(() => {
+    dispatchStories({ type: 'STORIES_FETCH_INIT' });
+
+    getAsyncStories()
+      .then(result => {
+        dispatchStories({
+          type: 'STORIES_FETCH_SUCCESS',
+          payload: result.data.stories
+        });
+    })
+      .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
+      );
+  }, []);
+
+  const handleRemoveStory = item => {
+    dispatchStories({
+      type: 'REMOVE_STORY',
+      payload: item
+    });
+  }
+  const searchedStories = stories.data.filter(story =>
+    story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  Finally, here is the instantiated <List> component at the App component level:
+
+      {stories.isError && <p>Something went wrong ...</p>}
+
+      {stories.isLoading ? (
+        <p>Loading ...</p>
+      ) : (
+        <List
+          list={searchedStories}
+          onRemoveItem={handleRemoveStory}
+        />
+      )}
+
+At the top level, the list and onRemoveItem props are passed down to the <List> component.  Well, before all the
+components are rendered the const variables stories and dispatchStories are initialized with the following code:
+
+  const getAsyncStories = () =>
+    new Promise(resolve =>
+      setTimeout(() =>
+        resolve({ data: { stories: initialStories } }),
+        2000
+      )
+    );
+
+  const [stories, dispatchStories] = React.useReducer(
+    storiesReducer,
+    { data: [], isLoading: false, isError: false }
+  );
+
+  React.useEffect(() => {
+    dispatchStories({ type: 'STORIES_FETCH_INIT' });
+
+    getAsyncStories()
+      .then(result => {
+        dispatchStories({
+          type: 'STORIES_FETCH_SUCCESS',
+          payload: result.data.stories
+        });
+    })
+      .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
+      );
+  }, []);
+
+  The variable getAsyncStories returns a new Promise object which already is fulfilled and a time of 2 seconds.  The
+  data passed to any "then" method is an object { data: { stories: initialStories } }, which is the initial array of
+  story objects.
+
+  We needed to return a Promise from getAsyncStories because a Promise is going to be returned when we use fetch to
+  request data from a URL.  In the code for const [stories, dispatchStories], the stories variable is assigned an
+  initial object, { data: [], isLoading: false, isError: false }.  dispatchStories will call the storiesReducer
+  function which takes two arguments, state and action.
+
+  In the code underneath const [stories, dispatchStories] an effect is defined.  The empty array, [] as the second
+  argument to React.useEffect means the code will only be run once on mount cleaned up once after unmount.  Here
+  we initialize the component with an empty array of data and set the application to display a loading message:
+
+  dispatchStories({ type: 'STORIES_FETCH_INIT' });
+
+  then we invoke an asynchronous operation to retrieve data from what will be a GET request, now we just return a
+  promise after 2 seconds of waiting.  The fulfilled promise then dispatches again returning isLoading and isError as
+  both false.  Initially, this payload is an empty array.
+
+  Now that the component has been initialized, we wait for user interaction.
+
+        <List
+          list={searchedStories}
+          onRemoveItem={handleRemoveStory}
+        />
+
+  Since stories has already been initialized to an object with a data property, we perform a search on the search item
+  in the input field of the input element.
+
+    const searchedStories = stories.data.filter(story =>
+      story.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    The resulting list from this function is passed down <List> as a prop.  The for each item in the list we
+    instantiate a new <Item> component which is the actual component that renders the data to the screen, the <List>
+    component was really a container for a series of <Item> components.
+
+    The prop onRemoveItem is given a function, handleRemoveStory, as a value.  handleRemoveStory takes an item object
+    from the stories.data array and then call dispatchStories with 'REMOVE_STORY' as the type and the item object as
+    the payload.  The storiesReducer gets called and the stories.data array is filtered such that the item object
+    passed in no longer appears in the stories.data array.

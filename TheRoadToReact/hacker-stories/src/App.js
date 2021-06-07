@@ -134,10 +134,6 @@ const App = () => {
   const handleSearch = event => {
     setSearchTerm(event.target.value);
   }
-  // const searchedStories = initialStories.filter(story =>
-  //   story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
   const handleRemoveStory = item => {
     dispatchStories({
       type: 'REMOVE_STORY',
