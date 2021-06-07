@@ -210,27 +210,20 @@ const storiesReducer = (state, action) => {
 
 Here is the code in the App component other than the <List> component instantiation:
 
-  const getAsyncStories = () =>
-    new Promise(resolve =>
-      setTimeout(() =>
-        resolve({ data: { stories: initialStories } }),
-        2000
-      )
-    );
-
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
     { data: [], isLoading: false, isError: false }
   );
 
-  React.useEffect(() => {
+React.useEffect(() => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    getAsyncStories()
+    fetch(`${API_ENDPOINT}react`)
+      .then(response => response.json())
       .then(result => {
         dispatchStories({
           type: 'STORIES_FETCH_SUCCESS',
-          payload: result.data.stories
+          payload: result.hits
         });
     })
       .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
@@ -263,41 +256,31 @@ Here is the code in the App component other than the <List> component instantiat
 At the top level, the list and onRemoveItem props are passed down to the <List> component.  Well, before all the
 components are rendered the const variables stories and dispatchStories are initialized with the following code:
 
-  const getAsyncStories = () =>
-    new Promise(resolve =>
-      setTimeout(() =>
-        resolve({ data: { stories: initialStories } }),
-        2000
-      )
-    );
+  const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
     { data: [], isLoading: false, isError: false }
   );
 
-  React.useEffect(() => {
+React.useEffect(() => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    getAsyncStories()
+    fetch(`${API_ENDPOINT}react`)
+      .then(response => response.json())
       .then(result => {
         dispatchStories({
           type: 'STORIES_FETCH_SUCCESS',
-          payload: result.data.stories
+          payload: result.hits
         });
     })
       .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
       );
   }, []);
 
-  The variable getAsyncStories returns a new Promise object which already is fulfilled and a time of 2 seconds.  The
-  data passed to any "then" method is an object { data: { stories: initialStories } }, which is the initial array of
-  story objects.
-
-  We needed to return a Promise from getAsyncStories because a Promise is going to be returned when we use fetch to
-  request data from a URL.  In the code for const [stories, dispatchStories], the stories variable is assigned an
-  initial object, { data: [], isLoading: false, isError: false }.  dispatchStories will call the storiesReducer
-  function which takes two arguments, state and action.
+  In the code for const [stories, dispatchStories], the stories variable is assigned an initial object,
+  { data: [], isLoading: false, isError: false }.  dispatchStories will call the storiesReducer function
+  which takes two arguments, state and action.
 
   In the code underneath const [stories, dispatchStories] an effect is defined.  The empty array, [] as the second
   argument to React.useEffect means the code will only be run once on mount cleaned up once after unmount.  Here
@@ -305,9 +288,15 @@ components are rendered the const variables stories and dispatchStories are init
 
   dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-  then we invoke an asynchronous operation to retrieve data from what will be a GET request, now we just return a
-  promise after 2 seconds of waiting.  The fulfilled promise then dispatches again returning isLoading and isError as
+  then we invoke an asynchronous operation to retrieve data from what will be a GET request, which returns a promise
+  after a successful request.  The fulfilled promise then dispatches again returning isLoading and isError as
   both false.  Initially, this payload is an empty array.
+
+  Note after the response is converted to JSON, it is passed to the next then method which calls dispatchStories with
+  a type of 'STORIES_FETCH_SUCCESS' and a payload of result.hits which is a property of the returned object from
+  the hacker stories API.  The action object is passed in as action.type and action.payload and is processed in the
+  storiesReducer under the case "STORIES_FETCH_REQUEST".  Note the stories.data property becomes the new data for the
+  stories object, an array of stories objects.
 
   Now that the component has been initialized, we wait for user interaction.
 
