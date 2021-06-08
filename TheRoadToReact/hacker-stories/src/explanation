@@ -260,7 +260,7 @@ components are rendered the const variables stories and dispatchStories are init
     { data: [], isLoading: false, isError: false }
   );
 
-React.useEffect(() => {
+const handleFetchStories = React.useCallback(() => {
     if (!searchTerm) return;
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
@@ -277,6 +277,13 @@ React.useEffect(() => {
   }, [searchTerm]); // note the effect is only run if the searchTerm changes between renders, setting the
   // searchTerm as such makes the search an API call instead of just a search on a local array of data.  This
   // is what we want.
+
+  React.useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
+
+  What we have done here is to move the API call into a separate function, the React.useCallBack creates a memoized
+  function.  This means the callback only gets executed if one its dependencies has changed.
 
   In the code for const [stories, dispatchStories], the stories variable is assigned an initial object,
   { data: [], isLoading: false, isError: false }.  dispatchStories will call the storiesReducer function
