@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import logo from './logo.svg';
-import './App.css';
+import styles from './App.module.css'
 
 const List = ({ list, onRemoveItem }) => (
   <ul>
@@ -15,7 +15,7 @@ const List = ({ list, onRemoveItem }) => (
   </ul>
 );
 const Item = ({ item, onRemoveItem }) => (
-  <li className="item">
+  <li className={styles.item}>
     <span style={{ width: '40%' }}>
       <a href={item.url}>{item.title}</a>
     </span>
@@ -26,7 +26,7 @@ const Item = ({ item, onRemoveItem }) => (
       <button
         type="button"
         onClick={() => onRemoveItem(item)}
-        className="button button_small"
+        className={`${styles.button} ${styles.buttonSmall}`}
       >
         Dismiss
       </button>
@@ -42,7 +42,7 @@ const InputWithLabel = ({ id, value, type = 'text', onInputChange, isFocused, ch
   }, [isFocused]);
   return (
     <>
-      <label htmlFor={id} className="label">
+      <label htmlFor={id} className={styles.label}>
         {children}
       </label>
       &nbsp;
@@ -53,7 +53,7 @@ const InputWithLabel = ({ id, value, type = 'text', onInputChange, isFocused, ch
         value={value}
         autoFocus={isFocused}
         onChange={onInputChange}
-        className="input"
+        className={styles.input}
       />
     </>
   );
@@ -63,7 +63,7 @@ const SearchForm = ({
   onSearchInput,
   onSearchSubmit
 }) => (
-  <form onSubmit={onSearchSubmit} className="search-form">
+  <form onSubmit={onSearchSubmit} className={styles.searchForm}>
     <InputWithLabel
       id="search"
       value={searchTerm}
@@ -75,7 +75,7 @@ const SearchForm = ({
     <button
       type="submit"
       disabled={!searchTerm}
-      className="button button_large"
+      className={`${styles.button} ${styles.buttonLarge}`}
     >
       Submit
     </button>
@@ -162,8 +162,8 @@ const App = () => {
     });
   }
   return (
-    <div className="container">
-      <h1 className="headline-primary">My Hacker Stories</h1>
+    <div className={styles.container}>
+      <h1 className={styles.headlinePrimary}>My Hacker Stories</h1>
 
       <SearchForm
         searchTerm={searchTerm}
