@@ -104,10 +104,25 @@ If we look at the instance of <InputWithLabel> we see how the props are passed d
 <InputWithLabel
 id="search"
 value={searchTerm}
-onInputChange={handleSearch}
+isFocused
+onInputChange={handleSearchInput}
 >
 <strong>Search:</strong>
 </InputWithLabel>
+<button
+type="button"
+disabled={!searchTerm}
+onClick={handleSearchSubmit}
+>
+Submit
+</button>
+
+const handleSearchInput = (event) => {
+setSearchTerm(event.target.value);
+}
+const handleSearchSubmit = () => {
+setUrl(`${API_ENDPOINT}${searchTerm}`);
+}
 
 So the props are id, value, onInputChange and children in this case.  In React, children are all the child nodes
 of the component, in this case the child node is <strong>Search:</strong> and we refer to this child in the component
@@ -215,27 +230,7 @@ Here is the code in the App component other than the <List> component instantiat
     { data: [], isLoading: false, isError: false }
   );
 
-React.useEffect(() => {
-    dispatchStories({ type: 'STORIES_FETCH_INIT' });
-
-    fetch(`${API_ENDPOINT}react`)
-      .then(response => response.json())
-      .then(result => {
-        dispatchStories({
-          type: 'STORIES_FETCH_SUCCESS',
-          payload: result.hits
-        });
-    })
-      .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
-      );
-  }, []);
-
-  const handleRemoveStory = item => {
-    dispatchStories({
-      type: 'REMOVE_STORY',
-      payload: item
-    });
-  }
+  const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`);
 
   Finally, here is the instantiated <List> component at the App component level:
 
@@ -264,7 +259,7 @@ const handleFetchStories = React.useCallback(() => {
     if (!searchTerm) return;
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    fetch(`${API_ENDPOINT}${searchTerm}`)
+    fetch(url)
       .then(response => response.json())
       .then(result => {
         dispatchStories({
@@ -274,9 +269,15 @@ const handleFetchStories = React.useCallback(() => {
     })
       .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
       );
-  }, [searchTerm]); // note the effect is only run if the searchTerm changes between renders, setting the
-  // searchTerm as such makes the search an API call instead of just a search on a local array of data.  This
-  // is what we want.
+  }, [url]); // note the effect is only run if the url changes between renders, setting the
+  // url as such makes the search an API call instead of just a search on a local array of data.  This
+  // is what we want.  Note the url only changes by the button click which calls the handleSearchSubmit
+  // handler which in turn calls setUrl.  Thus the search rate is limited by a button click whereas previously
+  // a new search would happen with every new character entered.
+
+  searchTerm is now used only as a side effect for updating the input field state, that is it is only used to compose
+  the url for searching.  The url variable is now the one used for data fetching, in the past searchTerm was used
+  for both side effects.
 
   React.useEffect(() => {
     handleFetchStories();
