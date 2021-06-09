@@ -2,6 +2,8 @@ import React from 'react';
 import axios from 'axios';
 import logo from './logo.svg';
 import styles from './App.module.css';
+import { ReactComponent as Check } from "./check.svg";
+
 const List = ({ list, onRemoveItem }) => (
   <ul>
     { list.map((item) => (
@@ -27,7 +29,7 @@ const Item = ({ item, onRemoveItem }) => (
         onClick={() => onRemoveItem(item)}
         className={`${styles.button} ${styles.buttonSmall}`}
       >
-        Dismiss
+        <Check height="18px" width="18px" />
       </button>
     </span>
   </li>
