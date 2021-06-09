@@ -2,16 +2,20 @@ import React from 'react';
 import axios from 'axios';
 import logo from './logo.svg';
 import styles from './App.module.css';
-const List = ({ list, onRemoveItem }) => (
-  <ul>
-    { list.map((item) => (
-      <Item
-        key={item.objectID}
-        item={item}
-        onRemoveItem={onRemoveItem}
-      />
-     ))};
-  </ul>
+import { ReactComponent as Check } from "./check.svg";
+
+const List = React.memo(
+  ({ list, onRemoveItem }) => (
+    <ul>
+      { list.map((item) => (
+        <Item
+          key={item.objectID}
+          item={item}
+          onRemoveItem={onRemoveItem}
+        />
+       ))}
+    </ul>
+  )
 );
 const Item = ({ item, onRemoveItem }) => (
   <li className={styles.item}>
@@ -27,7 +31,7 @@ const Item = ({ item, onRemoveItem }) => (
         onClick={() => onRemoveItem(item)}
         className={`${styles.button} ${styles.buttonSmall}`}
       >
-        Dismiss
+        <Check height="18px" width="18px" />
       </button>
     </span>
   </li>
@@ -111,11 +115,16 @@ const storiesReducer = (state, action) => {
   }
 }
 const useSemiPersistentState = (key, initialState) => {
+  const isMounted = React.useRef(false);
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
   );
   React.useEffect(() => {
-    localStorage.setItem(key, value);
+    if (!isMounted.current) {
+      isMounted.current = true;
+    } else {
+      localStorage.setItem(key, value);
+    }
   }, [key, value]);
   return [value, setValue];
 }
@@ -154,12 +163,12 @@ const App = () => {
     handleFetchStories();
   }, [handleFetchStories]);
 
-  const handleRemoveStory = item => {
+  const handleRemoveStory = React.useCallback((item) => {
     dispatchStories({
       type: 'REMOVE_STORY',
       payload: item
     });
-  }
+  }, []);
   return (
     <div className={styles.container}>
       <h1 className={styles.headlinePrimary}>My Hacker Stories</h1>

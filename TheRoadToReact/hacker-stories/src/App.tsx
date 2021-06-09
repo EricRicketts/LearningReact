@@ -4,8 +4,59 @@ import logo from './logo.svg';
 import styles from './App.module.css';
 import { ReactComponent as Check } from "./check.svg";
 
+type Story = {
+  objectID: string;
+  url: string;
+  title: string;
+  author: string;
+  number_of_comments: number;
+  points: number;
+};
+type Stories = Array<Story>;
+type StoriesState = {
+  data: Stories;
+  isLoading: boolean;
+  isError: boolean;
+}
+type ItemProps = {
+  item: Story;
+  onRemoveItem: (item: Story) => void;
+};
+type ListProps= {
+  list: Stories;
+  onRemoveItem: (item: Story) => void;
+};
+interface StoriesFetchInitAction {
+  type: 'STORIES_FETCH_INIT';
+}
+interface StoriesFetchSuccessAction {
+  type: 'STORIES_FETCH_SUCCESS';
+  payload: Stories;
+}
+interface StoriesFetchFailureAction {
+  type: 'STORIES_FETCH_FAILURE';
+}
+interface StoriesRemoveAction {
+  type: 'REMOVE_STORY';
+  payload: Story;
+}
+type StoriesAction = StoriesFetchInitAction | StoriesFetchSuccessAction | StoriesFetchFailureAction |
+  StoriesRemoveAction;
+type SearchFormProps = {
+  searchTerm: string;
+  onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
+type InputLabelWithProps = {
+  id: string;
+  value: string;
+  type?: string;
+  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isFocused?: boolean;
+  children: React.ReactNode;
+}
 const List = React.memo(
-  ({ list, onRemoveItem }) => (
+  ({ list, onRemoveItem }: ListProps) => (
     <ul>
       { list.map((item) => (
         <Item
@@ -17,7 +68,7 @@ const List = React.memo(
     </ul>
   )
 );
-const Item = ({ item, onRemoveItem }) => (
+const Item = ({ item, onRemoveItem }: ItemProps) => (
   <li className={styles.item}>
     <span style={{ width: '40%' }}>
       <a href={item.url}>{item.title}</a>
@@ -36,8 +87,15 @@ const Item = ({ item, onRemoveItem }) => (
     </span>
   </li>
 );
-const InputWithLabel = ({ id, value, type = 'text', onInputChange, isFocused, children }) => {
-  const inputRef = React.useRef();
+const InputWithLabel = ({
+  id,
+  value,
+  type = 'text',
+  onInputChange,
+  isFocused,
+  children
+}: InputLabelWithProps) => {
+  const inputRef = React.useRef<HTMLInputElement>(null!);
   React.useEffect(() => {
     if (isFocused && inputRef.current) {
       inputRef.current.focus();
@@ -65,7 +123,7 @@ const SearchForm = ({
   searchTerm,
   onSearchInput,
   onSearchSubmit
-}) => (
+}: SearchFormProps) => (
   <form onSubmit={onSearchSubmit} className={styles.searchForm}>
     <InputWithLabel
       id="search"
@@ -84,7 +142,10 @@ const SearchForm = ({
     </button>
   </form>
 );
-const storiesReducer = (state, action) => {
+const storiesReducer = (
+  state: StoriesState,
+  action: StoriesAction
+) => {
   switch (action.type) {
     case 'STORIES_FETCH_INIT':
       return {
@@ -114,7 +175,10 @@ const storiesReducer = (state, action) => {
       throw new Error();
   }
 }
-const useSemiPersistentState = (key, initialState) => {
+const useSemiPersistentState = (
+  key: string,
+  initialState: string
+):[string, (newValue: string) => void] => {
   const isMounted = React.useRef(false);
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
@@ -137,10 +201,10 @@ const App = () => {
     { data: [], isLoading: false, isError: false }
   );
 
-  const handleSearchInput = (event) => {
+  const handleSearchInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   }
-  const handleSearchSubmit = (event) => {
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
     event.preventDefault();
   }
@@ -163,7 +227,7 @@ const App = () => {
     handleFetchStories();
   }, [handleFetchStories]);
 
-  const handleRemoveStory = React.useCallback((item) => {
+  const handleRemoveStory = React.useCallback((item: Story) => {
     dispatchStories({
       type: 'REMOVE_STORY',
       payload: item
