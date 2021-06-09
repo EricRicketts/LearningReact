@@ -10,7 +10,7 @@ const List = ({ list, onRemoveItem }) => (
         item={item}
         onRemoveItem={onRemoveItem}
       />
-     ))}
+     ))};
   </ul>
 );
 const Item = ({ item, onRemoveItem }) => (
