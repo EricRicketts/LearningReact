@@ -90,3 +90,13 @@ makes another call to ```<h2>It is {this.state.date.toLocaleTimeString()}.</h2>`
 updates the UI.
 5.  If the ```<Clock />``` component removed from the DOM, the ```componentWillUnmount``` is called removing the
 timer.
+    
+### Important Concepts About State
+1.  Do not modify state directly, it will not issue a re-render.  Use ```setState``` to update the state.
+2.  The only place where you can assign ```this.state``` is in the constructor.
+3.  State updates may be asynchronous.  This is because React will batch multiple ```setState``` calls into a single
+update for performance issues.  If state is a function of previous state and _props_ use the functional form of
+```setState```.  Example ```this.setState((state, props) => ({ conter: state.counter + props.increment));```    
+4.  React merges state updates.  When calling ```setState``` React merges the current state with the provided object.    
+5.  Data flows down.  State management is the responsibility of the component entrusted with it.  Any child components
+can receive as _props_ the state or partial state of a parent component.
