@@ -100,3 +100,144 @@ update for performance issues.  If state is a function of previous state and _pr
 4.  React merges state updates.  When calling ```setState``` React merges the current state with the provided object.    
 5.  Data flows down.  State management is the responsibility of the component entrusted with it.  Any child components
 can receive as _props_ the state or partial state of a parent component.
+    
+### Handling Events
+Two things to remember about events in React:
+1.  Just like attributes in JSX, event attributes are camel cased.
+2.  In React, unlike the DOM, event handler values are function references, not strings.
+3.  _preventDefault_ must be called explicitly in the event handler body, you cannot do this in the attribute call.
+
+Here is a simple example of an event handler in React.
+```jsx
+class Toggle extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { isToggleOn: true }
+    // assignment is necessary to ensure the proper execution context
+    // in the callback
+    this.handleClick = this.handleClick.bind(this); // see below we can optionally handle binding in callback invocation
+  }
+ 
+  handleClick() {
+    this.setState(prevState => ({
+      isToggleOn: !prevState.isToggleOn 
+    }));
+  }
+ 
+  render() {
+    return (
+      <button onClick={this.handleClick}>
+        {/* <button onClick={this.handleClick.bind(this}>  option to handle binding here and not in constructor*/}
+        {this.state.isToggleOn ? 'ON' : 'OFF'} 
+      </button>
+    );
+  }
+}
+
+ReactDOM.render(
+  <Toggle />,
+  document.getElementById('root')
+)
+```
+In the React documentation, the recommendation is to bind event handlers.  Arrow functions mean a different
+callback is each time for the callback invocation.  If used as a prop, then the child components could needlessly
+re-render.
+
+Passing extra arguments to event handlers:
+```jsx
+<button onClick={this.deleteRow.bind(this, id)}>Delete Row</button>
+```
+
+### Conditional Rendering
+It is common in React to create distinct components which render upon a given condition.  Additionally, these elements
+can be stored in variables which can be rendered. 
+```jsx
+function UserGreeting(props) {
+  return <h1>Welcome back!</h1>;
+}
+
+function GuestGreeting(props) {
+  return <h1>Please sign up.</h1>;
+}
+
+function Greeting(props) {
+  const isLoggedIn = props.isLoggedIn;
+  if (isLoggedIn) {
+    return <UserGreeting />;
+  }
+  return <GuestGreeting />;
+}
+
+// we start with two different button components, it is important to note that even though the LoginButton and
+// LogoutButton are stateless the element still needs the onClick attribute to allow the state to control the
+// rerendering.  If the onClick handler is not included in the element the button will only render once with no
+// ability to update.
+function LoginButton(props) {
+  return (
+    <button onClick={props.onClick}>
+      Login
+    </button>
+  );
+}
+
+function LogoutButton(props) {
+  return (
+    <button onClick={props.onClick}>
+      Logout
+    </button>
+  );
+}
+
+class LoginControl extends React.Component {
+  constructor(props) {
+    // bind the handlers and set the initial state
+    super(props);
+    this.handleLoginClick = this.handleLoginClick.bind(this);
+    this.handleLogoutClick = this.handleLogoutClick.bind(this);
+    this.state = {isLoggedIn: false};
+  }
+
+  handleLoginClick() {
+    this.setState({isLoggedIn: true});
+  }
+
+  handleLogoutClick() {
+    this.setState({isLoggedIn: false});
+  }
+
+  render() {
+    // store the results of the conditional in an element variable, 'button' then render the element variable
+    const isLoggedIn = this.state.isLoggedIn;
+    let button;
+    // if the user is logged in then show the logout button, else the user is logged out so show the login button
+    // note the onClick handler in each case below calls the setState method which causes a rerender as the state
+    // updates.
+    
+    // it is important to note that the only propose of the onClick handlers for both LogoutButton and LoginButton
+    // is to update the state in the LoginControl component.  Though LogoutButton and LoginButton have props
+    // the props in both cases are undefined as there is no return value from handleLoginClick or
+    // handleLogoutClick.  These buttons are conditionally rendered depending on the state within the LoginControl
+    // component.
+   
+   // Likewise <Greeting /> is also stateless as it receives as a prop the isLoggedIn state of LoginControl 
+    if (isLoggedIn) {
+      button = <LogoutButton onClick={this.handleLogoutClick} />;
+    } else {
+      button = <LoginButton onClick={this.handleLoginClick} />;
+    }
+
+    return (
+      <div>
+        <Greeting isLoggedIn={isLoggedIn} />
+        {button}
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <LoginControl />,
+  document.getElementById('root')
+);
+```
+
