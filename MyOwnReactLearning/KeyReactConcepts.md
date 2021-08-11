@@ -241,3 +241,342 @@ ReactDOM.render(
 );
 ```
 
+### Lists and Keys in React
+Keys are very important in React, they are a special string attribute which help React identify which components or
+elements in a list have changed, been added or removed.
+
+Concepts:
+1.  Keys must be unique among siblings, not globally unique.
+2.  React defaults to assigning indexes as keys.  The best practice is to make keys unique.
+3.  Assigning keys should be done in the context of the array you are iterating over. 
+4.  Keys serve as a hint to React, they do not pass to your component like other props.  You cannot do _props.key_. 
+
+```jsx
+class ListItem extends React.Component {
+  constructor (props) {
+    super (props);
+  }  
+  // this is good practice do not assign keys out of context of the array, ie, do not <li key={value.toString()}>
+  render() {
+    const text = `This is item number ${this.props.value}.`;
+    return (
+      <li>{text}</li> 
+    )
+  }
+}
+
+class List extends React.Component {
+  constructor (props) {
+    super(props);
+  }  
+  
+  render() {
+    const numbers = this.props.numbers;
+    const listItems = numbers.map(number => {
+      // good practice specify keys inside the array not at the component definition
+      return (<ListItem key={number.toString()} value={number} />); 
+    });
+    return (
+      <ul>
+        {listItems}
+      </ul>
+    )
+  }
+}
+
+ReactDOM.render(
+  <List numbers={[0, 1, 2, 3]} />,
+  document.getElementById('root')
+)
+```
+
+Below is another example of using lists and keys in React, in this case we can guarantee the uniqueness of the ids.
+In such a case we can use them in the list items and the divs.  We are still using them in the context of list mapping.
+```jsx
+class Sidebar extends React.Component {
+  constructor (props) {
+    super(props);
+  }  
+  render () {
+    const titles = this.props.posts.map(post => {
+    return (<li key={post.id}>{post.title}</li>);
+    });
+    return (
+      <ul>
+        {titles}
+      </ul>
+    )
+  }
+}
+
+class Content extends React.Component {
+  constructor (props) {
+    super(props);
+  }
+  render() {
+    const allContent =  this.props.posts.map(post => {
+      return (
+        <div key={post.id}>
+          <h3>{post.title}</h3> 
+          <p>{post.content}</p>
+        </div>
+      )
+    }); 
+    return (allContent); // here we cannot use ({allContent}) because it turns the array into an object
+  }
+}
+
+class Blog extends React.Component {
+   constructor (props) {
+     super(props);
+   } 
+  render () {
+    const posts = this.props.posts
+    return (
+      <>
+        <Sidebar posts={posts} />
+        <Content posts={posts} />
+      </>
+    )
+  } 
+}
+
+const posts = [
+  {id: 1, title: 'Hello World', content: 'Welcome to learning React!'},
+  {id: 2, title: 'Installation', content: 'You can install React from npm.'}
+];
+
+ReactDOM.render(
+  <Blog posts={posts} />,
+  document.getElementById('root')
+)
+```
+
+### Forms and Controlled Components
+This is a very important concept, it mainly applies to HTML form elements.  HTML form elements are in control of their
+own state.  You can have a situation where the element's own internal state is different from the state of the
+enveloping React component.  We call this an uncontrolled element or component.  Note when you type characters in the
+input field of an input element, no extra Javascript code needs to be written.  The HTML _<input />_ element controls its
+state.
+
+A controlled component creates one state for all of its underlying elements and/or components.  We do this by using
+only React props and state to produce state.
+
+Below we have an example of an uncontrolled component:
+```jsx
+class SimpleForm extends React.Component {
+  constructor (props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSumbit = this.handleSubmit.bind(this);
+    this.state = { value: 'Hello, React!' }
+  }  
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });   
+  }
+  
+  handleSubmit(event) {
+    alert('The form was submitted with name: ', this.state.value);    
+    event.preventDefault();
+  }
+  
+  render () {
+    return (
+      <>
+        <form onSubmit={this.handleSubmit}>
+          <div>
+            <label htmlFor="my_form">Name: </label> 
+            <input type="text" id="my_form" onChange={this.handleChange} />
+          </div>
+          <div>
+            <label htmlFor="my_form_2">Name: </label> 
+            <input type="text" id="my_form_1" value={this.state.value} onChange={this.handleChange} />
+          </div>
+            <input type="submit" value="Submit" />
+        </form>
+        <p>Entered value: {this.state.value}</p>
+      </>
+    );
+  }
+}
+
+ReactDOM.render(
+  <SimpleForm />,
+  document.getElementById('root')
+)
+```
+
+The first div demonstrates an uncontrolled element.  The initial UI render has the paragraph content as 'Hello, React',
+the input field is empty.  The HTML input element manages its own state apart from ```<SimpleForm />```.  When one starts
+to type they appear to synchronize, but there are still two separate sources of state. 
+
+The second div is a controlled element, ```<SimpleForm />``` now controls both its state and HTML input element state.
+The value attribute of the second HTML input element takes its input from the state of the React component.  The
+method _handleChange_ runs on every keystroke and updates the component state with every keystroke.  This updated state
+is the value of the value attribute for the HTML input element.
+
+```jsx
+class Reservation extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isGoing: true,
+      numberOfGuests: 2
+    };
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleInputChange(event) {
+    const target = event.target;
+    const value = target.type === "checkbox" ? target.checked : target.value;
+    const name = target.name;
+    this.setState({ [name]: value });
+  }
+
+  handleSubmit(event) {
+    const numberOfGuests = this.state.numberOfGuests;
+    const isGoing = this.state.isGoing;
+    console.log(
+      `Form submitted: is going: ${isGoing}, number of guests: ${numberOfGuests}.`
+    );
+    event.preventDefault();
+  }
+
+  render() {
+    return (
+      <form action="#" onSubmit={this.handleSubmit}>
+        <div>
+          <label htmlFor="isGoing">Is Going: </label>
+          <input
+            id="isGoing"
+            name="isGoing"
+            type="checkbox"
+            checked={this.state.isGoing}
+            onChange={this.handleInputChange}
+          />
+        </div>
+        <div>
+          <label htmlFor="numberOfGuests">Is Going: </label>
+          <input
+            id="numberOfGuests"
+            name="numberOfGuests"
+            type="number"
+            value={this.state.numberOfGuests}
+            onChange={this.handleInputChange}
+          />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    );
+  }
+}
+
+ReactDOM.render(<Reservation />, document.getElementById("root"));
+```
+In the code above we write a React component that handles multiple inputs.  Note it is a controlled component.  Note
+if either checkbox or numeric input change the state updates.  The syntax ```[name]: value``` is the same as
+```this.state[name]: value```.
+
+### Lifting State
+```jsx
+const scaleNames = {
+  c: "Celsius",
+  f: "Fahrenheit"
+};
+
+function toCelsius(fahrenheit) {
+  return ((fahrenheit - 32) * 5) / 9;
+}
+
+function toFahrenheit(celsius) {
+  return (celsius * 9) / 5 + 32;
+}
+
+function tryConvert(temperature, convert) {
+  const input = parseFloat(temperature);
+  if (Number.isNaN(input)) {
+    return "";
+  }
+  const output = convert(input);
+  const rounded = Math.round(output * 1000) / 1000;
+  return rounded.toString();
+}
+
+function BoilingVerdict(props) {
+  if (props.celsius >= 100) {
+    return <p>The water would boil.</p>;
+  }
+  return <p>The water would not boil.</p>;
+}
+
+class TemperatureInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(e) {
+    this.props.onTemperatureChange(e.target.value);
+  }
+
+  render() {
+    const temperature = this.props.temperature;
+    const scale = this.props.scale;
+    return (
+      <fieldset>
+        <legend>Enter temperature in {scaleNames[scale]}:</legend>
+        <input value={temperature} onChange={this.handleChange} />
+      </fieldset>
+    );
+  }
+}
+
+class Calculator extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleCelsiusChange = this.handleCelsiusChange.bind(this);
+    this.handleFahrenheitChange = this.handleFahrenheitChange.bind(this);
+    this.state = { temperature: "", scale: "c" };
+  }
+
+  handleCelsiusChange(temperature) {
+    this.setState({ scale: "c", temperature });
+  }
+
+  handleFahrenheitChange(temperature) {
+    this.setState({ scale: "f", temperature });
+  }
+
+  render() {
+    const scale = this.state.scale;
+    const temperature = this.state.temperature;
+    const celsius =
+      scale === "f" ? tryConvert(temperature, toCelsius) : temperature;
+    const fahrenheit =
+      scale === "c" ? tryConvert(temperature, toFahrenheit) : temperature;
+
+    return (
+      <div>
+        <TemperatureInput
+          scale="c"
+          temperature={celsius}
+          onTemperatureChange={this.handleCelsiusChange}
+        />
+        <TemperatureInput
+          scale="f"
+          temperature={fahrenheit}
+          onTemperatureChange={this.handleFahrenheitChange}
+        />
+        <BoilingVerdict celsius={parseFloat(celsius)} />
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<Calculator />, document.getElementById("root"));
+```
+Explanation of code in view of React Component Life Cycle:
+1.  When ```<Calculator />``` is passed to ```ReactDOM.render()```
+

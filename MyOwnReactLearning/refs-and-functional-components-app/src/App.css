@@ -1,0 +1,96 @@
+html {
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20%;
+  margin: 0 auto;
+}
+
+#customTextInput, #simpleRefContainer {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#customTextInput > label {
+  font-size: 1.5em;
+}
+
+.textInput {
+  margin: 5px 0;
+  padding: 5px;
+  border: 1px solid lightgray;
+  font-size: 1.5em;
+  border-radius: 10px;
+}
+
+p {
+  font-size: 1.5em;
+}
+
+input:focus {
+  outline: none;
+}
+
+#textInput:focus {
+  border: 1px solid red;
+}
+
+.focusButton {
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 1.5em;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+#focusButton {
+  color: white;
+  background-color: coral;
+}
+
+.buttonClassZero {
+  color: #cbf83e;
+  background-color: #aba8a9;
+}
+
+.buttonClassOne {
+  color: #faf3d3;
+  background: #44714a;
+}
+
+.buttonClassTwo {
+  color: #fffffb;
+  background: #083efd;
+}
+
+.buttonClassThree {
+  color: #25395c;
+  background: #a4b0ff;
+}
