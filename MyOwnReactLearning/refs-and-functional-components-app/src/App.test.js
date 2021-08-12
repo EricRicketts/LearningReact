@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import UserEvent from '@testing-library/user-event';
 import { SimpleRef } from "./components/simple_ref";
 import { CallbackRefDynamicChild } from "./components/callback_ref_dynamic_child";
-import App from './App';
 import userEvent from "@testing-library/user-event";
 
 describe('Testing Refs And Functional Components', function () {
@@ -71,11 +70,40 @@ describe('Testing Refs And Functional Components', function () {
       expect(results).toEqual(expected);
     });
 
-    test('new inputs enable new input focus and entry', function () {
+    test('new inputs have focus and an entry', function () {
       UserEvent.click(buttonShowNextInput);
       secondTextInput = screen.queryByTestId('secondInputText');
       expect(secondTextInput).toHaveFocus();
       expect(secondTextInput.value).toBe('I have come into existence.');
+    });
+
+    test('new inputs can be removed by hide button', function () {
+      userEvent.click(buttonShowNextInput);
+      userEvent.click(buttonHideNextInput);
+      expected = [false, false, false];
+      [secondTextInput, firstInputFocusButton, firstInputBlurButton] = [
+        screen.queryByTestId('secondTextInput'), screen.queryByTestId('firstInputFocusButton'),
+        screen.queryByTestId('firstInputBlurButton')
+      ];
+      results = [!!secondTextInput, !!firstInputFocusButton, !!firstInputBlurButton];
+      expect(results).toEqual(expected);
+    });
+
+    test('new button focus the first input', function () {
+      userEvent.click(buttonShowNextInput);
+      firstInputFocusButton = screen.queryByTestId('firstInputFocusButton');
+      expect(firstTextInput).not.toHaveFocus();
+      userEvent.click(firstInputFocusButton);
+      expect(firstTextInput).toHaveFocus();
+    });
+
+    test('new button blur the first input', function () {
+      userEvent.click(buttonShowNextInput);
+      firstInputFocusButton = screen.queryByTestId('firstInputFocusButton');
+      firstInputBlurButton = screen.queryByTestId('firstInputBlurButton');
+      userEvent.click(firstInputFocusButton);
+      userEvent.click(firstInputBlurButton);
+      expect(firstTextInput).not.toHaveFocus();
     });
   });
 });

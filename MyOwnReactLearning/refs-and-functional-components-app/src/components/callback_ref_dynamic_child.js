@@ -37,7 +37,7 @@ function CallbackRefDynamicChild() {
       <label
         htmlFor="firstInputText"
       >
-        First Input Random Text
+        Input Random Text:
       </label>
       <input
         id="firstInputText"
@@ -66,7 +66,7 @@ function CallbackRefDynamicChild() {
           <label
             htmlFor="secondInputText"
           >
-            Second Input Random Text
+            Input Random Text:
           </label>
           <input
             id="secondInputText"
