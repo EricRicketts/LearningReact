@@ -1,0 +1,20 @@
+#containerSimple {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.focusButton {
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 1.5em;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+#focusButton {
+  color: white;
+  background-color: coral;
+}

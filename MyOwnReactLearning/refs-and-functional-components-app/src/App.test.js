@@ -1,11 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import UserEvent from '@testing-library/user-event';
 import { SimpleRef } from "./components/simple_ref";
+import { CallbackRefDynamicChild } from "./components/callback_ref_dynamic_child";
 import App from './App';
+import userEvent from "@testing-library/user-event";
 
 describe('Testing Refs And Functional Components', function () {
   let results, expected;
-  describe('Custom Text Input Component', function () {
+  describe('Functional Component Using Simple Ref', function () {
     let textInput, focusButton, blurButton, paragraphButton, randomText;
     beforeEach(() => {
       render(<SimpleRef />);
@@ -33,6 +35,47 @@ describe('Testing Refs And Functional Components', function () {
       ];
       UserEvent.click(paragraphButton);
       expect(expected).toContain(randomText.textContent);
+    });
+  });
+
+  describe('Functional Component Using Callback Ref', function () {
+    let firstTextInput, secondTextInput, buttonShowNextInput, buttonHideNextInput;
+    let firstInputFocusButton, firstInputBlurButton;
+    beforeEach(() => {
+      render(<CallbackRefDynamicChild />);
+      firstTextInput = screen.queryByTestId('firstInputText');
+      secondTextInput = screen.queryByTestId('secondInputText');
+      buttonShowNextInput = screen.queryByTestId('buttonShowNextInput');
+      buttonHideNextInput = screen.queryByTestId('buttonHideNextInput');
+      firstInputFocusButton = screen.queryByTestId('firstInputFocusButton');
+      firstInputBlurButton = screen.queryByTestId('firstInputBlurButton');
+    });
+
+    test('initialization', function () {
+      expected = [true, true, true, false, false, false];
+      results = [
+        !!firstTextInput, !!buttonShowNextInput, !!buttonHideNextInput,
+        !!secondTextInput, !!firstInputFocusButton, !!firstInputBlurButton
+      ];
+      expect(results).toEqual(expected);
+    });
+
+    test('new inputs and buttons present', function () {
+      UserEvent.click(buttonShowNextInput);
+      [secondTextInput, firstInputFocusButton, firstInputBlurButton] = [
+        screen.queryByTestId('secondInputText'), screen.queryByTestId('firstInputFocusButton'),
+        screen.queryByTestId('firstInputBlurButton')
+      ];
+      expected = [true, true, true];
+      results = [!!secondTextInput, !!firstInputFocusButton, !!firstInputBlurButton];
+      expect(results).toEqual(expected);
+    });
+
+    test('new inputs enable new input focus and entry', function () {
+      UserEvent.click(buttonShowNextInput);
+      secondTextInput = screen.queryByTestId('secondInputText');
+      expect(secondTextInput).toHaveFocus();
+      expect(secondTextInput.value).toBe('I have come into existence.');
     });
   });
 });

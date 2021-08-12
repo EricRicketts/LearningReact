@@ -1,6 +1,3 @@
-@import "./css/main.css";
-@import "./css/simple_ref.css";
-/*
 html {
   box-sizing: border-box;
   font-size: 16px;
@@ -33,18 +30,7 @@ main {
   margin: 0 auto;
 }
 
-#customTextInput, #simpleRefContainer {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#customTextInput > label {
-  font-size: 1.5em;
-}
-
-.textInput {
+input[type="text"] {
   margin: 5px 0;
   padding: 5px;
   border: 1px solid lightgray;
@@ -52,31 +38,13 @@ main {
   border-radius: 10px;
 }
 
-p {
-  font-size: 1.5em;
-}
-
-input:focus {
+input[type="text"]:focus {
   outline: none;
-}
-
-#textInput:focus {
   border: 1px solid red;
 }
 
-.focusButton {
-  margin: 5px 0;
-  padding: 5px;
+p, label {
   font-size: 1.5em;
-  border: none;
-  cursor: pointer;
-  border-radius: 10px;
-}
-*/
-
-#focusButton {
-  color: white;
-  background-color: coral;
 }
 
 .buttonClassZero {
@@ -97,4 +65,9 @@ input:focus {
 .buttonClassThree {
   color: #25395c;
   background: #a4b0ff;
+}
+
+.buttonClassFour {
+  color: #ed5fe1;
+  background: #379683;
 }

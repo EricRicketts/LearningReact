@@ -24,7 +24,7 @@ function SimpleRef(props) {
   }
 
   return (
-    <div id="customTextInput">
+    <div id="containerSimple">
       <p data-testid="randomText"
         ref={paragraphRef}
       >
@@ -33,7 +33,7 @@ function SimpleRef(props) {
       <label
         htmlFor="textInput"
       >
-        Random Text:
+        Input Random Text:
       </label>
       <input
         type="text"
