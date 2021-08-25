@@ -17,13 +17,51 @@ describe('React Reducer Tests', function () {
   });
 
   describe('Reducer No Lazy Initialization', function () {
-    test("initialize", function () {
+    test("initialize non-lazy", function () {
       expect(parNoReset.textContent).toBe("Count: 0");
+    });
+
+    test("increment non-lazy", function () {
+      for (let i = 0; i < 3; i += 1) {
+        userEvent.click(buttonIncrNoReset);
+      }
+      expect(parNoReset.textContent).toBe("Count: 3");
+    });
+
+    test("decrement non-lazy", function () {
+      for (let i = 0; i < 3; i += 1) {
+        userEvent.click(buttonIncrNoReset);
+      }
+      userEvent.click(buttonDecNoReset);
+      expect(parNoReset.textContent).toBe("Count: 2");
     });
   });
 
   describe('Reducer Lazy Initialization', function () {
-    test("initialize", function () {
+    test("initialize lazy", function () {
+      expect(parReset.textContent).toBe("Count: 0");
+    });
+
+    test("increment lazy", function () {
+      for (let i = 0; i < 3; i += 1) {
+        userEvent.click(buttonIncrReset);
+      }
+      expect(parReset.textContent).toBe("Count: 3");
+    });
+
+    test("decrement lazy", function () {
+      for (let i = 0; i < 3; i += 1) {
+        userEvent.click(buttonIncrReset);
+      }
+      userEvent.click(buttonDecReset);
+      expect(parReset.textContent).toBe("Count: 2");
+    });
+
+    test("reset", function() {
+      for (let i = 0; i < 3; i += 1) {
+        userEvent.click(buttonIncrReset);
+      }
+      userEvent.click(buttonReset);
       expect(parReset.textContent).toBe("Count: 0");
     });
   });
