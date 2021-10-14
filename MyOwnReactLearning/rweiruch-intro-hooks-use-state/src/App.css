@@ -41,6 +41,18 @@ img {
   justify-content: space-between;
 }
 
+.tutorial-list > li > a {
+  display: inline-block;
+  margin-top: 5px;
+}
+
 .remove-button {
   margin-left: 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #faf3d3;
+  font-size: 14px;
+  height: 30px;
+  color: coral;
+
 }
