@@ -41,9 +41,11 @@ img {
   justify-content: space-between;
 }
 
-.tutorial-list > li > a {
+.url-link, .url-link:link {
   display: inline-block;
   margin-top: 5px;
+  text-decoration: none;
+  color: #a4b0ff;
 }
 
 .remove-button {

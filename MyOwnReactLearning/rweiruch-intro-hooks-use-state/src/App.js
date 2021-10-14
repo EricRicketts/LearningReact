@@ -40,7 +40,7 @@ function App() {
       <ul className="tutorial-list">
         {list.map(item => (
           <li key={item.id}>
-            <a href={item.url}>{item.title}</a>
+            <a className="url-link" href={item.url}>{item.title}</a>
             <button className="remove-button" type="button" onClick={onRemoveItem}>
               Remove
             </button>
