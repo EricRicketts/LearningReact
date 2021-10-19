@@ -28,6 +28,10 @@ function App() {
   const [list, setList] = React.useState(INITIAL_LIST);
   const [showForm, setShowForm] = React.useState(false);
 
+  function onAddForm() {
+    setShowForm(true);
+  }
+
   function onRemoveItem(id) {
     let newList = list.filter(item => item.id !== id);
     setList(newList);
@@ -43,7 +47,9 @@ function App() {
         ))}
       </ul>
       <div id="conditional-form" data-testid="conditionalForm">
-        <button type="button" data-testid="addArticleButton">Add Article</button>
+        <button type="button" data-testid="addArticleButton" onClick={() => onAddForm()}>
+          Add Article
+        </button>
         {showForm &&
           (<form action="" data-testid="addArticleForm">
           <div>
