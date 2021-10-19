@@ -13,48 +13,11 @@ body, h1, h2, h3, h4, h5, h6, p, ol, ul {
   font-weight: normal;
 }
 
-ol {
+ol, ul {
   list-style: none;
 }
 
 img {
   max-width: 100%;
   height: auto;
-}
-
-#container {
-  margin: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.tutorial-list {
-  list-style: lower-roman outside none;
-}
-
-.tutorial-list > li:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-.tutorial-list > li {
-  display: flex;
-  justify-content: space-between;
-}
-
-.url-link, .url-link:link {
-  display: inline-block;
-  margin-top: 5px;
-  text-decoration: none;
-  color: #a4b0ff;
-}
-
-.remove-button {
-  margin-left: 15px;
-  border: none;
-  border-radius: 5px;
-  background-color: #faf3d3;
-  font-size: 14px;
-  height: 30px;
-  color: coral;
-
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+
 const INITIAL_LIST = [
   {
     id: '0',
@@ -14,40 +15,50 @@ const INITIAL_LIST = [
   },
   {
     id: '2',
-    title: 'React Hooks Tutorial',
-    url: 'https://www.robinwieruch.de/react-hooks'
+    title: 'How to useState in React',
+    url: 'https://www.robinwieruch.de/react-usestate-hook',
   },
   {
     id: '3',
-    title: 'How to useState in React',
-    url: 'https://www.robinwieruch.de/react-usestate-hook'
-  },
-  {
-    id: '4',
-    title: 'How to useEffect in React',
-    url: 'https://www.robinwieruch.de/react-useeffect-hook'
+    title: "How to useEffect in React",
+    url: 'https://www.robinwieruch.de/react-useeffect-hook',
   },
 ];
 function App() {
   const [list, setList] = React.useState(INITIAL_LIST);
+  const [showForm, setShowForm] = React.useState(false);
 
-  function onRemoveItem(event) {
-    event.preventDefault();
+  function onRemoveItem(id) {
+    let newList = list.filter(item => item.id !== id);
+    setList(newList);
   }
-
   return (
-    <div id="container">
-      <ul className="tutorial-list">
+    <>
+      <ul data-testid="list">
         {list.map(item => (
           <li key={item.id}>
-            <a className="url-link" href={item.url}>{item.title}</a>
-            <button className="remove-button" type="button" onClick={onRemoveItem}>
-              Remove
-            </button>
+            <a href={item.url}>{item.title}</a>
+            <button type="button" onClick={() => onRemoveItem(item.id)}>Remove</button>
           </li>
         ))}
       </ul>
-    </div>
+      <div id="conditional-form" data-testid="conditionalForm">
+        <button type="button" data-testid="addArticleButton">Add Article</button>
+        {showForm &&
+          (<form action="" data-testid="addArticleForm">
+          <div>
+            <label htmlFor="title">Title: </label>
+            <input type="text" id="title" name="title"/>
+          </div>
+          <div>
+            <label htmlFor="url">URL: </label>
+            <input type="text" id="url" name="url"/>
+          </div>
+          <input type="submit" data-testid="submitAddArticleForm"/>
+        </form>)
+        }
+      </div>
+    </>
   );
 }
 
