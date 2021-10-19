@@ -41,10 +41,18 @@ describe("Testing useState", function() {
   });
 
   describe('Add A List Item', function () {
-    test('Add Item Form Present When Add Article Button Clicked', function() {
-        userEvent.click(addArticleButton);
-        addArticleForm = divForConditionalForm.querySelector('form');
-        expect(addArticleForm).toBeTruthy();
+    test('Add Article Button Toggles Form', function() {
+      expected = [true, "Cancel", false, "Add Article"];
+      userEvent.click(addArticleButton);
+      addArticleForm = divForConditionalForm.querySelector('form');
+      let buttonText = addArticleButton.textContent;
+      results = [!!addArticleForm, buttonText];
+      userEvent.click(addArticleButton);
+      addArticleForm = divForConditionalForm.querySelector('form');
+      buttonText = addArticleButton.textContent;
+      results.push(!!addArticleForm, buttonText);
+      expect(results).toEqual(expected);
     });
+
   });
 });
